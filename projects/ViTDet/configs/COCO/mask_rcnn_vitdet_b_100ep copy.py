@@ -1,5 +1,6 @@
 from functools import partial
 from fvcore.common.param_scheduler import MultiStepParamScheduler
+from detectron2.data import DatasetCatalog, MetadataCatalog
 
 from detectron2 import model_zoo
 from detectron2.config import LazyCall as L
@@ -7,6 +8,28 @@ from detectron2.solver import WarmupParamScheduler
 from detectron2.modeling.backbone.vit import get_vit_lr_decay_rate
 
 from ..common.coco_loader_lsj import dataloader
+
+import os
+from detectron2.data.datasets import register_coco_instances
+
+#cstm_dataset
+def cstm_register_coco():
+    dataset_path = os.getenv("DETECTRON2_DATASETS", "/data1/")
+    train_json = "/home/yzhang63/instances_train2017.json"
+    train_images = os.path.join(dataset_path, "coco/images/train2017")
+    val_json = os.path.join(dataset_path, "coco/annotations/instances_val2017.json")
+    val_images = os.path.join(dataset_path, "coco/images/val2017")
+
+    register_coco_instances("my_coco_train", {}, train_json, train_images)
+    register_coco_instances("my_coco_val", {}, val_json, val_images)
+
+    print("Dataset registered successfully.")
+
+cstm_register_coco()
+#cstm_dataset ends
+dataloader.train.dataset.names = "my_coco_train"
+dataloader.test.dataset.names = "my_coco_val"
+dataloader.train.total_batch_size  = 2
 
 
 model = model_zoo.get_config("common/models/mask_rcnn_vitdet.py").model

@@ -1,0 +1,41 @@
+MODEL:
+  WEIGHTS: "detectron2://ImageNetPretrained/MAE/mae_pretrain_vit_base.pth?matching_heuristics=True"
+  MASK_ON: True
+  BACKBONE:
+    NAME: "build_vitdet_backbone"  # Using ViTDet backbone
+    FREEZE_AT: 0
+    VIT:
+      DROP_PATH_RATE: 0.1
+      PRETRAIN_IMG_SIZE: 224
+      POS_EMBED: "sine"  # or "learnable"
+  RESNETS:
+    DEPTH: 50
+  FPN:
+    IN_FEATURES: ["res2", "res3", "res4", "res5"]
+
+DATASETS:
+  TRAIN: ("RAW_coco_train",)
+  TEST: ("RAW_coco_val",)
+
+SOLVER:
+  IMS_PER_BATCH: 1
+  BASE_LR: 0.001
+  MAX_ITER: 184375
+  STEPS: (163889, 177546)
+  WARMUP_FACTOR: 0.001
+  WARMUP_ITERS: 250
+  WARMUP_METHOD: "linear"
+  AMP:
+    ENABLED: True
+
+DATALOADER:
+  NUM_WORKERS: 2
+
+INPUT:
+  MIN_SIZE_TRAIN: (256, 384)
+  MAX_SIZE_TRAIN: 640
+  MIN_SIZE_TEST: 800
+  MAX_SIZE_TEST: 1333
+  RANDOM_FLIP: "horizontal"
+
+OUTPUT_DIR: "./output"
